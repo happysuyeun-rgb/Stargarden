@@ -8,7 +8,10 @@ export const CARE_BONUS = {
 } as const
 
 export const RARE_PROBABILITY = 0.15
-export const SLEEP_THRESHOLD_DAYS = 30
+export const RETURN_GREETING_DAYS = 7
+export const RARE_PITY_DAYS = 10
+export const STARLIGHT_TAPS_PER_BONUS = 10
+export const BLOOMS_PER_SLOT = 5
 export const MIN_SIGNUP_AGE = 14
 export const GARDEN_START_SLOTS = 6
 export const GARDEN_MAX_SLOTS = 12

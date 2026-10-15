@@ -12,7 +12,10 @@ export const FREE_PRESET_LIMIT = 1
 export const SOUND_MAX_CHANNELS = 8
 export const GARDEN_START_SLOTS = 6
 export const GARDEN_MAX_SLOTS = 12
-export const SLEEP_THRESHOLD_DAYS = 30
+export const BLOOMS_PER_SLOT = 5
+export const RETURN_GREETING_DAYS = 7
+export const RARE_PITY_DAYS = 10
+export const STARLIGHT_TAPS_PER_BONUS = 10
 export const MIN_SIGNUP_AGE = 14
 
 export const GROWTH_STAGES = {

@@ -1,10 +1,10 @@
-import { SLEEP_THRESHOLD_DAYS } from '../constants/game'
+import { RETURN_GREETING_DAYS } from '../constants/game'
 
 export function shouldGardenSleep(lastActiveAt: string | null, now = new Date()): boolean {
   if (!lastActiveAt) return false
   const last = new Date(lastActiveAt)
   const diffDays = (now.getTime() - last.getTime()) / (1000 * 60 * 60 * 24)
-  return diffDays >= SLEEP_THRESHOLD_DAYS
+  return diffDays >= RETURN_GREETING_DAYS
 }
 
 /** 잠든 정원이면 접속 시각과 상관없이 깨어남 모달을 다시 띄운다. */

@@ -1,4 +1,4 @@
-import { CARE_BONUS } from '../constants/game'
+import { CARE_BONUS, STARLIGHT_TAPS_PER_BONUS } from '../constants/game'
 import { getKSTDateString } from './datetime'
 import type { GardenPlant } from '../stores/gardenStore'
 
@@ -20,7 +20,7 @@ export function applyWatering(plant: GardenPlant, now = new Date()): GardenPlant
 export function getStarlightBonusToday(plant: GardenPlant, now = new Date()): number {
   const today = getKSTDateString(now)
   if (plant.starlightDate !== today) return 0
-  const hours = (plant.starlightTapsToday / 10) * CARE_BONUS.starlight
+  const hours = (plant.starlightTapsToday / STARLIGHT_TAPS_PER_BONUS) * CARE_BONUS.starlight
   return Math.min(hours, CARE_BONUS.starlightDailyCap)
 }
 
@@ -43,7 +43,7 @@ export function applyStarlightTap(plant: GardenPlant, now = new Date()): GardenP
   }
 
   taps += 1
-  if (taps % 10 === 0) {
+  if (taps % STARLIGHT_TAPS_PER_BONUS === 0) {
     bonus += CARE_BONUS.starlight
   }
 
