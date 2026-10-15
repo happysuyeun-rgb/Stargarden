@@ -16,7 +16,7 @@ export function DevModeBadge() {
 
   const handleOnboarding = () => {
     useAuthStore.getState().reset()
-    navigate('/onboarding', { replace: true })
+    navigate('/consent', { replace: true })
   }
 
   return (

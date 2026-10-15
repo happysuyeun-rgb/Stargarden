@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 import { GARDEN_START_SLOTS } from '../constants/game'
 import { getSeedById } from '../constants/seeds'
 import { slotsFromBloomCount } from '../lib/gardenSlots'
-import { calcGrowthProgress, getGrowthStage, wakePlantFromSleep } from '../lib/growth'
+import { calcGrowthProgress, getGrowthStage } from '../lib/growth'
 import { useSeedsStore } from './seedsStore'
 
 export interface GardenPlant {
@@ -141,20 +141,13 @@ export const useGardenStore = create<GardenState>()(
       setPendingBloom: (pendingBloomId) => set({ pendingBloomId }),
       applyGardenSleep: (sleeping) =>
         set((s) => {
-          if (sleeping) {
-            const sleptAt = new Date().toISOString()
-            return {
-              plants: s.plants.map((p) => ({
-                ...p,
-                isSleeping: true,
-                sleptAt,
-              })),
-            }
-          }
-          // TODO(기획): 30일 공백 기간 성장 반영 정책 확정
-          const now = new Date()
+          const sleptAt = sleeping ? new Date().toISOString() : null
           return {
-            plants: s.plants.map((p) => wakePlantFromSleep(p, now)),
+            plants: s.plants.map((p) => ({
+              ...p,
+              isSleeping: sleeping,
+              sleptAt: sleeping ? sleptAt : null,
+            })),
           }
         }),
       toggleSound: () => set((s) => ({ isSoundOn: !s.isSoundOn })),

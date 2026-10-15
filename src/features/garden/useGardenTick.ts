@@ -11,7 +11,7 @@ export function useGardenTick() {
     const check = () => {
       const now = new Date()
       for (const plant of plants) {
-        if (plant.bloomedAt || plant.isSleeping) continue
+        if (plant.bloomedAt) continue
         const { progress } = computePlantProgress(plant, now)
         if (progress >= 1 && pendingBloomId !== plant.id) {
           setPendingBloom(plant.id)

@@ -2,12 +2,9 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { CARE_BONUS, MIN_SIGNUP_AGE } from './constants/game'
 import { applyStarlightTap, applyWatering, canTapStarlight, canWaterToday } from './lib/careActions'
 import { getInternationalAge, getKSTDateString } from './lib/datetime'
-import { calcGrowthProgress, wakePlantFromSleep } from './lib/growth'
 import { resolveWakeOnMount } from './lib/sleep'
 import { hasReceivedSeedToday, useSeedsStore } from './stores/seedsStore'
 import type { GardenPlant } from './stores/gardenStore'
-
-const hourMs = 60 * 60 * 1000
 
 function previousDate(date: string): string {
   const [year, month, day] = date.split('-').map(Number)
@@ -68,36 +65,6 @@ describe('잠듦', () => {
     expect(resolveWakeOnMount(false, true).showWakeModal).toBe(true)
     expect(resolveWakeOnMount(true, true).showWakeModal).toBe(true)
     expect(resolveWakeOnMount(false, false).showWakeModal).toBe(false)
-  })
-})
-
-describe('성장 동결', () => {
-  it('잠들기 전 진행률과 깨운 직후 진행률이 같다', () => {
-    const now = new Date('2026-10-15T03:00:00.000Z')
-    const plantedAt = new Date(now.getTime() - 50 * hourMs).toISOString()
-    const sleptAt = new Date(now.getTime() - 40 * hourMs).toISOString()
-    const sleeping = plant({ plantedAt, isSleeping: true, sleptAt })
-
-    const before = calcGrowthProgress({
-      plantedAt: new Date(sleeping.plantedAt),
-      requiredHours: sleeping.requiredHours,
-      careBonusHours: sleeping.careBonusHours,
-      now,
-      isSleeping: true,
-      sleptAt: sleeping.sleptAt,
-    })
-    const awake = wakePlantFromSleep(sleeping, now)
-    const after = calcGrowthProgress({
-      plantedAt: new Date(awake.plantedAt),
-      requiredHours: awake.requiredHours,
-      careBonusHours: awake.careBonusHours,
-      now,
-      isSleeping: awake.isSleeping,
-      sleptAt: awake.sleptAt,
-    })
-
-    expect(after).toBeCloseTo(before)
-    expect(before).toBeCloseTo(10 / sleeping.requiredHours)
   })
 })
 

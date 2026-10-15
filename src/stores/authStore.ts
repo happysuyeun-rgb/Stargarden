@@ -9,6 +9,13 @@ export interface BirthProfile {
   birthTime: string | null
 }
 
+export interface ConsentRecord {
+  termsVersion: string
+  privacyVersion: string
+  marketingOptIn: boolean
+  agreedAt: string
+}
+
 interface AuthState {
   isOnboarded: boolean
   ohangType: OhangType | null
@@ -18,7 +25,9 @@ interface AuthState {
   lastActiveAt: string | null
   isGardenSleeping: boolean
   welcomeSeedGranted: boolean
+  consent: ConsentRecord | null
   setOnboarded: (ohangType: OhangType, profile?: BirthProfile) => void
+  setConsent: (consent: ConsentRecord) => void
   enterDevMode: (ohangType?: OhangType) => void
   touchActive: () => void
   setGardenSleeping: (sleeping: boolean) => void
@@ -37,6 +46,7 @@ export const useAuthStore = create<AuthState>()(
       lastActiveAt: null,
       isGardenSleeping: false,
       welcomeSeedGranted: false,
+      consent: null,
       setOnboarded: (ohangType, profile) =>
         set({
           isOnboarded: true,
@@ -58,6 +68,7 @@ export const useAuthStore = create<AuthState>()(
       touchActive: () => set({ lastActiveAt: new Date().toISOString() }),
       setGardenSleeping: (isGardenSleeping) => set({ isGardenSleeping }),
       markWelcomeSeedGranted: () => set({ welcomeSeedGranted: true }),
+      setConsent: (consent) => set({ consent }),
       reset: () =>
         set({
           isOnboarded: false,
@@ -68,6 +79,7 @@ export const useAuthStore = create<AuthState>()(
           lastActiveAt: null,
           isGardenSleeping: false,
           welcomeSeedGranted: false,
+          consent: null,
         }),
     }),
     { name: 'stargarden-auth' },

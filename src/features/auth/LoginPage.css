@@ -68,11 +68,3 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-
-.login__terms {
-  margin-top: 24px;
-  font-size: 11px;
-  color: var(--color-text-muted);
-  text-align: center;
-  line-height: 1.5;
-}

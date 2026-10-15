@@ -9,7 +9,7 @@ export function LoginPage() {
   const devBypass = isDevBypassEnabled()
 
   const handleLogin = () => {
-    navigate('/onboarding')
+    navigate('/consent')
   }
 
   const handleDevEnter = () => {
@@ -40,10 +40,6 @@ export function LoginPage() {
           이메일로 가입하기
         </button>
       </div>
-
-      <p className="login__terms">
-        시작하면 서비스 이용약관 및 개인정보처리방침에 동의하게 됩니다.
-      </p>
     </div>
   )
 }
