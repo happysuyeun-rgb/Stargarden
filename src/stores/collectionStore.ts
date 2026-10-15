@@ -5,6 +5,7 @@ import type { GardenPlant } from './gardenStore'
 export interface CollectionEntry {
   seedId: string
   firstBloomedAt: string
+  bloomCount: number
 }
 
 interface CollectionState {
@@ -21,10 +22,17 @@ export const useCollectionStore = create<CollectionState>()(
     (set, get) => ({
       entries: [],
       registerBloom: (seedId, bloomedAt = new Date().toISOString()) => {
-        const exists = get().entries.some((e) => e.seedId === seedId)
-        if (exists) return
+        const existing = get().entries.find((e) => e.seedId === seedId)
+        if (existing) {
+          set((s) => ({
+            entries: s.entries.map((e) =>
+              e.seedId === seedId ? { ...e, bloomCount: e.bloomCount + 1 } : e,
+            ),
+          }))
+          return
+        }
         set((s) => ({
-          entries: [...s.entries, { seedId, firstBloomedAt: bloomedAt }],
+          entries: [...s.entries, { seedId, firstBloomedAt: bloomedAt, bloomCount: 1 }],
         }))
       },
       syncFromPlants: (plants) => {
@@ -37,6 +45,7 @@ export const useCollectionStore = create<CollectionState>()(
               map.set(p.seedId, {
                 seedId: p.seedId,
                 firstBloomedAt: p.bloomedAt!,
+                bloomCount: 1,
               })
             }
           }
@@ -47,6 +56,20 @@ export const useCollectionStore = create<CollectionState>()(
       getEntry: (seedId) => get().entries.find((e) => e.seedId === seedId),
       reset: () => set({ entries: [] }),
     }),
-    { name: 'stargarden-collection' },
+    {
+      name: 'stargarden-collection',
+      version: 1,
+      migrate: (persisted) => {
+        const state = (persisted ?? {}) as { entries?: Array<Partial<CollectionEntry>> }
+        return {
+          ...state,
+          entries: (state.entries ?? []).map((entry) => ({
+            seedId: entry.seedId ?? '',
+            firstBloomedAt: entry.firstBloomedAt ?? new Date(0).toISOString(),
+            bloomCount: entry.bloomCount ?? 1,
+          })),
+        }
+      },
+    },
   ),
 )

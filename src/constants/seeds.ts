@@ -52,9 +52,9 @@ export function getSeedById(id: string): SeedMaster | undefined {
   return SEEDS.find((s) => s.id === id)
 }
 
-export function pickDailySeed(energyCode: OhangType): SeedMaster {
+export function pickDailySeed(energyCode: OhangType, forceRare = false): SeedMaster {
   const pool = SEEDS.filter((s) => s.energyCode === energyCode)
-  const isRare = Math.random() < RARE_PROBABILITY
+  const isRare = forceRare || Math.random() < RARE_PROBABILITY
   const rarity = isRare ? 'rare' : 'normal'
   const candidates = pool.filter((s) => s.rarity === rarity)
   return candidates[Math.floor(Math.random() * candidates.length)] ?? pool[0]

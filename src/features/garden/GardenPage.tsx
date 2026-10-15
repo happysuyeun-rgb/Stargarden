@@ -56,6 +56,7 @@ export function GardenPage() {
   const updatePlant = useGardenStore((s) => s.updatePlant)
   const markBloomed = useGardenStore((s) => s.markBloomed)
   const registerBloom = useCollectionStore((s) => s.registerBloom)
+  const collectionEntries = useCollectionStore((s) => s.entries)
 
   const inventory = useSeedsStore((s) => s.inventory)
   const lastReceivedDate = useSeedsStore((s) => s.lastReceivedDate)
@@ -92,6 +93,9 @@ export function GardenPage() {
   const greenhousePlants = plants.filter((p) => p.location === 'greenhouse')
   const selectedPlant = plants.find((p) => p.id === selectedPlantId) ?? null
   const bloomPlant = plants.find((p) => p.id === pendingBloomId) ?? null
+  const nextBloomCount = bloomPlant
+    ? (collectionEntries.find((e) => e.seedId === bloomPlant.seedId)?.bloomCount ?? 0) + 1
+    : 1
 
   useGardenTick()
 
@@ -453,6 +457,7 @@ export function GardenPage() {
       {!showReturnGreeting && bloomPlant && !bloomPlant.bloomedAt && (
         <BloomModal
           plant={bloomPlant}
+          bloomCount={nextBloomCount}
           onClose={handleBloomClose}
           onPlaySound={() => playBloomSound(bloomPlant)}
         />

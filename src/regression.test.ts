@@ -1,11 +1,12 @@
-import { beforeEach, describe, expect, it } from 'vitest'
-import { CARE_BONUS, GROWTH_HOURS, MIN_SIGNUP_AGE } from './constants/game'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { CARE_BONUS, GROWTH_HOURS, MIN_SIGNUP_AGE, RARE_PITY_DAYS } from './constants/game'
 import { applyStarlightTap, applyWatering, canTapStarlight, canWaterToday } from './lib/careActions'
 import { getInternationalAge, getKSTDateString } from './lib/datetime'
 import { calcGrowthProgress } from './lib/growth'
 import { shouldShowReturnGreeting } from './lib/sleep'
 import { hasReceivedSeedToday, useSeedsStore } from './stores/seedsStore'
-import type { GardenPlant } from './stores/gardenStore'
+import { useCollectionStore } from './stores/collectionStore'
+import { useGardenStore, type GardenPlant } from './stores/gardenStore'
 
 function previousDate(date: string): string {
   const [year, month, day] = date.split('-').map(Number)
@@ -85,6 +86,62 @@ describe('복귀 연출', () => {
     })
     const elapsedHours = (now.getTime() - plantedAt.getTime()) / (1000 * 60 * 60)
     expect(progress).toBeCloseTo(elapsedHours / GROWTH_HOURS.normal)
+  })
+})
+
+describe('희귀 천장', () => {
+  beforeEach(() => {
+    useSeedsStore.getState().reset()
+  })
+
+  it('일일 씨앗이 10번 연속 일반이면 다음은 희귀다', () => {
+    const random = vi.spyOn(Math, 'random').mockReturnValue(0.99)
+    try {
+      for (let i = 0; i < RARE_PITY_DAYS; i += 1) {
+        useSeedsStore.setState({ lastReceivedDate: null })
+        const seed = useSeedsStore.getState().grantDailySeed('wood')
+        expect(seed?.rarity).toBe('normal')
+      }
+      expect(useSeedsStore.getState().daysSinceRare).toBe(RARE_PITY_DAYS)
+
+      useSeedsStore.setState({ lastReceivedDate: null })
+      const rare = useSeedsStore.getState().grantDailySeed('wood')
+      expect(rare?.rarity).toBe('rare')
+      expect(useSeedsStore.getState().daysSinceRare).toBe(0)
+    } finally {
+      random.mockRestore()
+    }
+  })
+})
+
+describe('개화 횟수', () => {
+  beforeEach(() => {
+    useCollectionStore.getState().reset()
+  })
+
+  it('같은 종을 두 번 피우면 횟수가 2다', () => {
+    useCollectionStore.getState().registerBloom('seed-1', '2026-10-15T00:00:00.000Z')
+    useCollectionStore.getState().registerBloom('seed-1', '2026-10-16T00:00:00.000Z')
+    expect(useCollectionStore.getState().getEntry('seed-1')?.bloomCount).toBe(2)
+  })
+})
+
+describe('온실', () => {
+  beforeEach(() => {
+    useGardenStore.getState().reset()
+    useCollectionStore.getState().reset()
+  })
+
+  it('핀 꽃을 온실로 옮기면 칸이 비고 도감은 유지된다', () => {
+    const bloomed = plant({ bloomedAt: '2026-10-15T00:00:00.000Z', seedId: 'seed-1' })
+    useGardenStore.getState().setPlants([bloomed])
+    useCollectionStore.getState().registerBloom(bloomed.seedId, bloomed.bloomedAt!)
+
+    expect(useGardenStore.getState().moveToGreenhouse(bloomed.id)).toBe(true)
+    const moved = useGardenStore.getState().plants[0]
+    expect(moved.location).toBe('greenhouse')
+    expect(moved.slotIndex).toBeNull()
+    expect(useCollectionStore.getState().isCollected(bloomed.seedId)).toBe(true)
   })
 })
 

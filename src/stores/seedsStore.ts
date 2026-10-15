@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { RARE_PITY_DAYS } from '../constants/game'
 import { getSeedById, pickDailySeed, SEED_IDS, SEEDS } from '../constants/seeds'
 import type { OhangType } from '../constants/strings'
 import type { SeedMaster } from '../constants/seeds'
@@ -19,6 +20,7 @@ interface SeedsPersisted {
   inventory: InventorySeed[]
   lastReceivedDate: string | null
   todaySeed: InventorySeed | null
+  daysSinceRare: number
 }
 
 interface SeedsState extends SeedsPersisted {
@@ -51,6 +53,7 @@ const emptySeeds: SeedsPersisted = {
   inventory: [],
   lastReceivedDate: null,
   todaySeed: null,
+  daysSinceRare: 0,
 }
 
 export function hasReceivedSeedToday(
@@ -69,11 +72,13 @@ export const useSeedsStore = create<SeedsState>()(
         const current = get()
         if (current.lastReceivedDate === today) return current.todaySeed
 
-        const master = pickDailySeed(energyCode)
+        const forceRare = current.daysSinceRare >= RARE_PITY_DAYS
+        const master = pickDailySeed(energyCode, forceRare)
         const seed = toInventorySeed(master, 'daily')
         set((s) => ({
           todaySeed: seed,
           lastReceivedDate: today,
+          daysSinceRare: master.rarity === 'rare' ? 0 : s.daysSinceRare + 1,
           inventory: [...s.inventory, seed],
         }))
         return seed
@@ -101,22 +106,25 @@ export const useSeedsStore = create<SeedsState>()(
     }),
     {
       name: 'stargarden-seeds',
-      version: 1,
+      version: 2,
       migrate: (persisted, version) => {
         const state = (persisted ?? {}) as Partial<SeedsPersisted> & {
           hasReceivedToday?: boolean
         }
+        const daysSinceRare = state.daysSinceRare ?? 0
         if (version < 1 || state.lastReceivedDate === undefined) {
           return {
             inventory: state.inventory ?? [],
             lastReceivedDate: null,
             todaySeed: null,
+            daysSinceRare,
           }
         }
         return {
           inventory: state.inventory ?? [],
           lastReceivedDate: state.lastReceivedDate,
           todaySeed: state.todaySeed ?? null,
+          daysSinceRare,
         }
       },
     },

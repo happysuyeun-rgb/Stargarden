@@ -90,6 +90,7 @@ export function PlantDetailPage() {
       {bloomDate && (
         <p className="plant-detail__date">첫 개화일 · {bloomDate}</p>
       )}
+      {entry && <p className="plant-detail__date">{entry.bloomCount}번 피웠어요</p>}
 
       <section className="plant-detail__gallery" aria-label="성장 단계">
         <h2>성장 기록</h2>
