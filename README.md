@@ -51,16 +51,18 @@ src/
 ├── lib/        growth, ohang, careActions, soundEngine, sleep, timeOfDay
 ├── constants/  seeds, game, strings
 supabase/
-├── migrations/ 001~005
-└── functions/  Edge Function 스텁 7종
+├── migrations/ 001~008
+└── functions/  Edge Function 스텁 14종 (전부 501 스텁)
 ```
 
 ## Supabase (Phase 2)
 
 1. Supabase 프로젝트 생성
-2. `supabase/migrations/001` ~ `005` 순서대로 실행
+2. `supabase/migrations/001` ~ `008` 순서대로 실행
 3. `.env`에 URL·anon key 설정
 4. Google/Apple OAuth 콘솔 연동
+
+**007·008은 Edge Function 구현 후 운영 DB에 적용할 것. 007은 클라이언트 쓰기를 막기 때문에, Edge Function 없이 적용하면 정원 데이터를 쓸 수 없음.**
 
 자세한 역할 분담·진행 현황은 [`docs/작업현황_2026-07-09.md`](docs/작업현황_2026-07-09.md) 참고.
 
