@@ -19,6 +19,7 @@ function plant(overrides: Partial<GardenPlant> = {}): GardenPlant {
     id: 'plant-1',
     userSeedId: 'useed-1',
     seedId: 'seed-1',
+    location: 'garden',
     slotIndex: 0,
     speciesName: '새싹풀',
     ohangType: 'wood',

@@ -21,6 +21,7 @@ import { useSoundStore } from '../../stores/soundStore'
 import { BloomModal } from './BloomModal'
 import { EnergyCard } from './EnergyCard'
 import { PlantCarePopover } from './PlantCarePopover'
+import { GreenhouseSheet } from './GreenhouseSheet'
 import { SeedInventory } from './SeedInventory'
 import { SeedReceiveModal } from './SeedReceiveModal'
 import { TutorialOverlay } from './TutorialOverlay'
@@ -50,6 +51,8 @@ export function GardenPage() {
   const startPlanting = useGardenStore((s) => s.startPlanting)
   const cancelPlanting = useGardenStore((s) => s.cancelPlanting)
   const plantAtSlot = useGardenStore((s) => s.plantAtSlot)
+  const moveToGreenhouse = useGardenStore((s) => s.moveToGreenhouse)
+  const moveToGarden = useGardenStore((s) => s.moveToGarden)
   const updatePlant = useGardenStore((s) => s.updatePlant)
   const markBloomed = useGardenStore((s) => s.markBloomed)
   const registerBloom = useCollectionStore((s) => s.registerBloom)
@@ -69,6 +72,10 @@ export function GardenPage() {
 
   const [energyOpen, setEnergyOpen] = useState(false)
   const [inventoryOpen, setInventoryOpen] = useState(false)
+  const [greenhouseOpen, setGreenhouseOpen] = useState(false)
+  const [fullPromptSeedId, setFullPromptSeedId] = useState<string | null>(null)
+  const [relocateSeedId, setRelocateSeedId] = useState<string | null>(null)
+  const [returnPlantId, setReturnPlantId] = useState<string | null>(null)
   const [seedModalSeed, setSeedModalSeed] = useState<InventorySeed | null>(null)
   const [kstDate, setKstDate] = useState(() => getKSTDateString())
   const [selectedPlantId, setSelectedPlantId] = useState<string | null>(null)
@@ -81,6 +88,8 @@ export function GardenPage() {
   const { playBloomSound, startGardenSound } = useGardenSound(plants)
 
   const slotCount = slots || GARDEN_START_SLOTS
+  const gardenPlants = plants.filter((p) => p.location === 'garden')
+  const greenhousePlants = plants.filter((p) => p.location === 'greenhouse')
   const selectedPlant = plants.find((p) => p.id === selectedPlantId) ?? null
   const bloomPlant = plants.find((p) => p.id === pendingBloomId) ?? null
 
@@ -154,8 +163,42 @@ export function GardenPage() {
     showToast(TOAST.welcomeSeed)
   }
 
+  const hasEmptySlot = gardenPlants.length < slotCount
+  const bloomedInGarden = gardenPlants.filter((p) => p.bloomedAt)
+
+  const beginPlant = (seedId: string) => {
+    if (hasEmptySlot) {
+      startPlanting(seedId)
+      showToast('심을 자리를 선택해주세요')
+      return
+    }
+    if (bloomedInGarden.length === 0) {
+      showToast(TOAST.noBloomToMove)
+      return
+    }
+    setFullPromptSeedId(seedId)
+  }
+
   const handleSlotClick = useCallback(
     (index: number, plant: GardenPlant | undefined) => {
+      if (relocateSeedId && plant?.bloomedAt && plant.slotIndex === index) {
+        const moved = moveToGreenhouse(plant.id)
+        if (!moved) return
+        startPlanting(relocateSeedId)
+        const planted = plantAtSlot(index)
+        setRelocateSeedId(null)
+        setSelectedPlantId(null)
+        showToast(TOAST.movedToGreenhouse)
+        if (planted) showToast('씨앗을 심었어요')
+        return
+      }
+      if (returnPlantId && !plant) {
+        const ok = moveToGarden(returnPlantId, index)
+        if (!ok) return
+        setReturnPlantId(null)
+        showToast(TOAST.movedToGarden)
+        return
+      }
       if (plantingMode.active && !plant) {
         const ok = plantAtSlot(index)
         if (ok) {
@@ -176,22 +219,25 @@ export function GardenPage() {
       }
       if (!tutorialActive) setInventoryOpen(true)
     },
-    [plantingMode.active, plantAtSlot, showToast, tutorialActive, tutorialStep, nextTutorialStep],
+    [
+      relocateSeedId,
+      returnPlantId,
+      moveToGreenhouse,
+      moveToGarden,
+      startPlanting,
+      plantingMode.active,
+      plantAtSlot,
+      showToast,
+      tutorialActive,
+      tutorialStep,
+      nextTutorialStep,
+    ],
   )
 
   const handleSeedPlant = () => {
     if (!seedModalSeed) return
-    const emptySlots = Array.from({ length: slotCount }, (_, i) => i).filter(
-      (i) => !plants.some((p) => p.slotIndex === i),
-    )
-    if (emptySlots.length === 0) {
-      showToast(TOAST.gardenFull)
-      setSeedModalSeed(null)
-      return
-    }
-    startPlanting(seedModalSeed.id)
+    beginPlant(seedModalSeed.id)
     setSeedModalSeed(null)
-    showToast('심을 자리를 선택해주세요')
   }
 
   const handleSeedStore = () => {
@@ -201,8 +247,14 @@ export function GardenPage() {
 
   const handleInventoryPlant = (userSeedId: string) => {
     setInventoryOpen(false)
-    startPlanting(userSeedId)
-    showToast('심을 자리를 선택해주세요')
+    beginPlant(userSeedId)
+  }
+
+  const handleMoveToGreenhouse = () => {
+    if (!selectedPlant) return
+    if (!moveToGreenhouse(selectedPlant.id)) return
+    setSelectedPlantId(null)
+    showToast(TOAST.movedToGreenhouse)
   }
 
   const handleWater = () => {
@@ -232,7 +284,7 @@ export function GardenPage() {
   }
 
   const slotItems = Array.from({ length: slotCount }, (_, i) => {
-    const plant = plants.find((p) => p.slotIndex === i)
+    const plant = gardenPlants.find((p) => p.slotIndex === i)
     const progress = plant ? computePlantProgress(plant) : null
     return { index: i, plant, progress }
   })
@@ -245,11 +297,22 @@ export function GardenPage() {
         userOhang={ohangType}
       />
 
-      {plantingMode.active && (
+      {(plantingMode.active || relocateSeedId || returnPlantId) && (
         <div className="garden__planting-hint" role="status">
-          심을 자리를 선택하세요
+          {relocateSeedId
+            ? '온실로 옮길 꽃을 골라주세요'
+            : returnPlantId
+              ? '데려올 자리를 선택하세요'
+              : '심을 자리를 선택하세요'}
           {!tutorialActive && (
-            <button type="button" onClick={cancelPlanting}>
+            <button
+              type="button"
+              onClick={() => {
+                cancelPlanting()
+                setRelocateSeedId(null)
+                setReturnPlantId(null)
+              }}
+            >
               취소
             </button>
           )}
@@ -265,7 +328,8 @@ export function GardenPage() {
               className={[
                 'garden__slot',
                 plant && 'garden__slot--planted',
-                plantingMode.active && !plant && 'garden__slot--highlight',
+                (plantingMode.active || returnPlantId) && !plant && 'garden__slot--highlight',
+                relocateSeedId && plant?.bloomedAt && 'garden__slot--highlight',
                 tutorialActive && tutorialStep === 2 && !plant && 'garden__slot--tutorial',
               ]
                 .filter(Boolean)
@@ -285,7 +349,7 @@ export function GardenPage() {
           ))}
         </div>
 
-        {plants.length === 0 && !plantingMode.active && !tutorialActive && (
+        {gardenPlants.length === 0 && !plantingMode.active && !tutorialActive && (
           <p className="garden__empty">첫 씨앗을 심어보세요</p>
         )}
       </div>
@@ -297,6 +361,15 @@ export function GardenPage() {
         aria-label="씨앗 주머니"
       >
         🎒 {inventory.length > 0 && <span>{inventory.length}</span>}
+      </button>
+
+      <button
+        type="button"
+        className="garden__greenhouse-btn"
+        onClick={() => setGreenhouseOpen(true)}
+        aria-label="온실"
+      >
+        🏡 {greenhousePlants.length > 0 && <span>{greenhousePlants.length}</span>}
       </button>
 
       <button type="button" className="garden__moon" aria-label="수면 모드 (준비 중)" disabled>
@@ -320,6 +393,46 @@ export function GardenPage() {
         />
       )}
 
+      <GreenhouseSheet
+        open={greenhouseOpen}
+        plants={greenhousePlants}
+        onClose={() => setGreenhouseOpen(false)}
+        onReturn={(plantId) => {
+          if (!hasEmptySlot) {
+            showToast(TOAST.gardenFull)
+            return
+          }
+          setGreenhouseOpen(false)
+          setReturnPlantId(plantId)
+        }}
+      />
+
+      {fullPromptSeedId && (
+        <div className="garden-full" role="presentation">
+          <div className="garden-full__card" role="dialog" aria-modal="true" aria-label="정원이 가득해요">
+            <p>{TOAST.gardenFull}</p>
+            <button
+              type="button"
+              onClick={() => {
+                setRelocateSeedId(fullPromptSeedId)
+                setFullPromptSeedId(null)
+              }}
+            >
+              꽃 고르기
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setFullPromptSeedId(null)
+                showToast('씨앗 주머니에 보관했어요')
+              }}
+            >
+              주머니에 보관
+            </button>
+          </div>
+        </div>
+      )}
+
       <SeedInventory
         open={inventoryOpen}
         onClose={() => setInventoryOpen(false)}
@@ -333,6 +446,7 @@ export function GardenPage() {
           onClose={() => setSelectedPlantId(null)}
           onWater={handleWater}
           onStarlight={handleStarlight}
+          onMoveToGreenhouse={handleMoveToGreenhouse}
         />
       )}
 

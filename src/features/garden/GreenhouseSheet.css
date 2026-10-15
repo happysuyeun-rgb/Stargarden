@@ -1,0 +1,43 @@
+.greenhouse__empty {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: 32px 0;
+}
+
+.greenhouse__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.greenhouse__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+}
+
+.greenhouse__name {
+  font-size: 15px;
+}
+
+.greenhouse__date,
+.greenhouse__hint {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.greenhouse__listen {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--color-accent);
+}

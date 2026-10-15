@@ -19,7 +19,10 @@ export const OHANG_NAMES = {
 
 export const TOAST = {
   oauthFailed: '별이 잠시 흐려졌어요. 다시 시도해주세요',
-  gardenFull: '정원이 가득해요. 씨앗 주머니에 보관할게요',
+  gardenFull: '정원이 가득해요. 온실로 옮길 꽃을 골라볼까요?',
+  noBloomToMove: '꽃이 피면 온실로 옮길 수 있어요',
+  movedToGreenhouse: '온실로 옮겼어요. 소리는 그대로 들을 수 있어요',
+  movedToGarden: '정원으로 다시 데려왔어요',
   tomorrowSeed: '내일 새로운 기운의 씨앗이 찾아와요',
   welcomeSeed: '내일 아침, 새로운 기운의 씨앗이 찾아와요',
   comingSoon: '곧 만나요',

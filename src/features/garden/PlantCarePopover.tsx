@@ -12,11 +12,18 @@ interface PlantCarePopoverProps {
   onClose: () => void
   onWater: () => void
   onStarlight: () => void
+  onMoveToGreenhouse: () => void
 }
 
 const STAGE_LABELS = ['씨앗', '새싹', '개화']
 
-export function PlantCarePopover({ plant, onClose, onWater, onStarlight }: PlantCarePopoverProps) {
+export function PlantCarePopover({
+  plant,
+  onClose,
+  onWater,
+  onStarlight,
+  onMoveToGreenhouse,
+}: PlantCarePopoverProps) {
   const { progress, growthStage } = computePlantProgress(plant)
   const remaining = getRemainingHours(
     plant.requiredHours,
@@ -74,6 +81,12 @@ export function PlantCarePopover({ plant, onClose, onWater, onStarlight }: Plant
               ✨ 별빛 쬐기
             </button>
           </div>
+        )}
+
+        {plant.bloomedAt && plant.location === 'garden' && (
+          <button type="button" className="care-popover__action" onClick={onMoveToGreenhouse}>
+            온실로 옮기기
+          </button>
         )}
 
         {plant.bloomedAt && channel && (

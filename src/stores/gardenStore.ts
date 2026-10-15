@@ -6,11 +6,14 @@ import { slotsFromBloomCount } from '../lib/gardenSlots'
 import { calcGrowthProgress, getGrowthStage } from '../lib/growth'
 import { useSeedsStore } from './seedsStore'
 
+export type PlantLocation = 'garden' | 'greenhouse'
+
 export interface GardenPlant {
   id: string
   userSeedId: string
   seedId: string
-  slotIndex: number
+  location: PlantLocation
+  slotIndex: number | null
   speciesName: string
   ohangType: string
   rarity: 'normal' | 'rare'
@@ -40,6 +43,8 @@ interface GardenState {
   startPlanting: (userSeedId: string) => void
   cancelPlanting: () => void
   plantAtSlot: (slotIndex: number) => boolean
+  moveToGreenhouse: (plantId: string) => boolean
+  moveToGarden: (plantId: string, slotIndex: number) => boolean
   updatePlant: (id: string, updater: (p: GardenPlant) => GardenPlant) => void
   markBloomed: (id: string) => void
   setPendingBloom: (id: string | null) => void
@@ -81,7 +86,7 @@ export const useGardenStore = create<GardenState>()(
         const { plantingMode, plants, slots } = get()
         if (!plantingMode.active || !plantingMode.userSeedId) return false
         if (slotIndex < 0 || slotIndex >= slots) return false
-        if (plants.some((p) => p.slotIndex === slotIndex)) return false
+        if (plants.some((p) => p.location === 'garden' && p.slotIndex === slotIndex)) return false
 
         const seedInfo = useSeedsStore.getState().getSeed(plantingMode.userSeedId)
         if (!seedInfo) return false
@@ -94,6 +99,7 @@ export const useGardenStore = create<GardenState>()(
           id: `plant-${Date.now()}`,
           userSeedId: plantingMode.userSeedId,
           seedId: master.id,
+          location: 'garden',
           slotIndex,
           speciesName: master.speciesName,
           ohangType: master.energyCode,
@@ -111,6 +117,29 @@ export const useGardenStore = create<GardenState>()(
         set({
           plants: [...plants, plant],
           plantingMode: { active: false, userSeedId: null },
+        })
+        return true
+      },
+      moveToGreenhouse: (plantId) => {
+        const plant = get().plants.find((p) => p.id === plantId)
+        if (!plant?.bloomedAt || plant.location !== 'garden') return false
+        set((s) => ({
+          plants: s.plants.map((p) =>
+            p.id === plantId ? { ...p, location: 'greenhouse', slotIndex: null } : p,
+          ),
+        }))
+        return true
+      },
+      moveToGarden: (plantId, slotIndex) => {
+        const { plants, slots } = get()
+        const plant = plants.find((p) => p.id === plantId)
+        if (!plant || plant.location !== 'greenhouse') return false
+        if (slotIndex < 0 || slotIndex >= slots) return false
+        if (plants.some((p) => p.location === 'garden' && p.slotIndex === slotIndex)) return false
+        set({
+          plants: plants.map((p) =>
+            p.id === plantId ? { ...p, location: 'garden', slotIndex } : p,
+          ),
         })
         return true
       },
@@ -137,7 +166,7 @@ export const useGardenStore = create<GardenState>()(
     }),
     {
       name: 'stargarden-garden',
-      version: 1,
+      version: 2,
       migrate: (persisted) => {
         const state = (persisted ?? {}) as { plants?: Array<Record<string, unknown>> }
         const legacyKeys = ['is' + 'Sleeping', 'slept' + 'At']
@@ -146,6 +175,7 @@ export const useGardenStore = create<GardenState>()(
           plants: (state.plants ?? []).map((plant) => {
             const next = { ...plant }
             for (const key of legacyKeys) delete next[key]
+            if (next.location !== 'garden' && next.location !== 'greenhouse') next.location = 'garden'
             return next
           }),
         }

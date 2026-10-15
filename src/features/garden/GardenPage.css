@@ -52,6 +52,15 @@
   padding: 8px;
 }
 
+.garden__greenhouse-btn {
+  position: absolute;
+  top: 112px;
+  left: 64px;
+  font-size: 22px;
+  padding: 8px;
+}
+
+.garden__greenhouse-btn span,
 .garden__inventory-btn span {
   position: absolute;
   top: 0;
@@ -66,6 +75,40 @@
   align-items: center;
   justify-content: center;
   font-weight: 600;
+}
+
+.garden-full {
+  position: fixed;
+  inset: 0;
+  z-index: 240;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.garden-full__card {
+  width: 100%;
+  max-width: 320px;
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  text-align: center;
+}
+
+.garden-full__card p {
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+
+.garden-full__card button {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .garden__energy-card {
