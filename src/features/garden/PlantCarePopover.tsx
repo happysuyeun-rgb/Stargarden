@@ -18,11 +18,13 @@ const STAGE_LABELS = ['씨앗', '새싹', '개화']
 
 export function PlantCarePopover({ plant, onClose, onWater, onStarlight }: PlantCarePopoverProps) {
   const { progress, growthStage } = computePlantProgress(plant)
-  const remaining = getRemainingHours(
-    plant.requiredHours,
-    plant.careBonusHours,
-    new Date(plant.plantedAt),
-  )
+  const remaining = getRemainingHours({
+    plantedAt: new Date(plant.plantedAt),
+    requiredHours: plant.requiredHours,
+    careBonusHours: plant.careBonusHours,
+    isSleeping: plant.isSleeping,
+    sleptAt: plant.sleptAt,
+  })
   const watered = !canWaterToday(plant)
   const starlightCapped = !canTapStarlight(plant)
   const channel = useSoundStore((s) => s.channels.find((c) => c.plantId === plant.id))
