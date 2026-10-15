@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { MIN_SIGNUP_AGE } from '../../constants/game'
 import { SIJIN_SLOTS } from '../../constants/sijin'
+import { getInternationalAge, getKSTDateString } from '../../lib/datetime'
 import { calcOhangStub } from '../../lib/ohang'
 import { useAuthStore } from '../../stores/authStore'
 import './OnboardingPage.css'
@@ -14,12 +16,17 @@ export function OnboardingPage() {
   const [birthTimeUnknown, setBirthTimeUnknown] = useState(false)
   const [birthTime, setBirthTime] = useState<string | null>(null)
 
+  const underAge = birthDate !== '' && getInternationalAge(birthDate) < MIN_SIGNUP_AGE
+  const canLeaveStep2 = birthTimeUnknown || birthTime !== null
+
   const handleNext = () => {
     if (step === 1 && birthDate) {
+      if (underAge) return
       setStep(2)
       return
     }
     if (step === 2) {
+      if (!canLeaveStep2) return
       const ohangType = calcOhangStub(birthDate)
       setOnboarded(ohangType, {
         birthDate,
@@ -49,10 +56,15 @@ export function OnboardingPage() {
             <input
               type="date"
               value={birthDate}
-              max={new Date().toISOString().slice(0, 10)}
+              max={getKSTDateString()}
               onChange={(e) => setBirthDate(e.target.value)}
             />
           </label>
+          {underAge && (
+            <p className="onboarding__accuracy-hint">
+              만 {MIN_SIGNUP_AGE}세부터 별의 정원을 이용할 수 있어요.
+            </p>
+          )}
           <label className="onboarding__toggle">
             <input
               type="checkbox"
@@ -113,7 +125,7 @@ export function OnboardingPage() {
         <button
           type="button"
           className="onboarding__next"
-          disabled={step === 1 && !birthDate}
+          disabled={(step === 1 && (!birthDate || underAge)) || (step === 2 && !canLeaveStep2)}
           onClick={handleNext}
         >
           {step === 2 ? '기질 확인하기' : '다음'}

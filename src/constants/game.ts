@@ -13,6 +13,7 @@ export const SOUND_MAX_CHANNELS = 8
 export const GARDEN_START_SLOTS = 6
 export const GARDEN_MAX_SLOTS = 12
 export const SLEEP_THRESHOLD_DAYS = 30
+export const MIN_SIGNUP_AGE = 14
 
 export const GROWTH_STAGES = {
   seed: 0,

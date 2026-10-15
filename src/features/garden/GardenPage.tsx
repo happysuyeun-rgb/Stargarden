@@ -100,7 +100,7 @@ export function GardenPage() {
     touchActive()
 
     if (!isDevMode && !welcomeSeedGranted && !tutorialCompleted) {
-      const seed = grantWelcomeSeed()
+      const seed = grantWelcomeSeed(ohangType ?? 'wood')
       markWelcomeSeedGranted()
       startTutorial(seed.id)
       setTimeout(() => {

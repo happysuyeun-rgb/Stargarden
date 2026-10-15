@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { getSeedById, pickDailySeed, SEED_IDS } from '../constants/seeds'
+import { getSeedById, pickDailySeed, SEED_IDS, SEEDS } from '../constants/seeds'
 import type { OhangType } from '../constants/strings'
 import type { SeedMaster } from '../constants/seeds'
 import { getKSTDateString } from '../lib/datetime'
@@ -23,7 +23,7 @@ interface SeedsPersisted {
 
 interface SeedsState extends SeedsPersisted {
   grantDailySeed: (energyCode: OhangType) => InventorySeed | null
-  grantWelcomeSeed: () => InventorySeed
+  grantWelcomeSeed: (ohangType: OhangType) => InventorySeed
   removeFromInventory: (id: string) => void
   getSeed: (id: string) => InventorySeed | undefined
   setInventory: (seeds: InventorySeed[]) => void
@@ -78,8 +78,9 @@ export const useSeedsStore = create<SeedsState>()(
         }))
         return seed
       },
-      grantWelcomeSeed: () => {
-        const master = getSeedById(SEED_IDS.woodNormal1)!
+      grantWelcomeSeed: (ohangType) => {
+        const pool = SEEDS.filter((s) => s.energyCode === ohangType && s.rarity === 'normal')
+        const master = pool[Math.floor(Math.random() * pool.length)] ?? getSeedById(SEED_IDS.woodNormal1)!
         const seed = toInventorySeed(master, 'welcome')
         set((s) => ({ inventory: [...s.inventory, seed] }))
         return seed

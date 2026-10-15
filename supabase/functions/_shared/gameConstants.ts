@@ -9,6 +9,7 @@ export const CARE_BONUS = {
 
 export const RARE_PROBABILITY = 0.15
 export const SLEEP_THRESHOLD_DAYS = 30
+export const MIN_SIGNUP_AGE = 14
 export const GARDEN_START_SLOTS = 6
 export const GARDEN_MAX_SLOTS = 12
 
