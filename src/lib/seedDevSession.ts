@@ -82,7 +82,7 @@ export function seedDevSession(ohangType: OhangType = 'water') {
       receivedAt: new Date().toISOString(),
     },
   ])
-  useSeedsStore.setState({ hasReceivedToday: false, todaySeed: null })
+  useSeedsStore.setState({ lastReceivedDate: null, todaySeed: null })
 
   useCollectionStore.getState().registerBloom(SEED_IDS.waterRare, hoursAgo(4))
   useTutorialStore.getState().complete()

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { applyStarlightTap, applyWatering } from '../../lib/careActions'
+import { getKSTDateString } from '../../lib/datetime'
 import { getTodayEnergy } from '../../constants/seeds'
 import { GARDEN_START_SLOTS } from '../../constants/game'
 import { TOAST } from '../../constants/strings'
@@ -12,7 +13,7 @@ import {
   useGardenStore,
   type GardenPlant,
 } from '../../stores/gardenStore'
-import { useSeedsStore } from '../../stores/seedsStore'
+import { hasReceivedSeedToday, useSeedsStore, type InventorySeed } from '../../stores/seedsStore'
 import { useCollectionStore } from '../../stores/collectionStore'
 import { useTutorialStore } from '../../stores/tutorialStore'
 import { useToastStore } from '../../stores/toastStore'
@@ -54,8 +55,8 @@ export function GardenPage() {
   const registerBloom = useCollectionStore((s) => s.registerBloom)
 
   const inventory = useSeedsStore((s) => s.inventory)
-  const hasReceivedToday = useSeedsStore((s) => s.hasReceivedToday)
-  const todaySeed = useSeedsStore((s) => s.todaySeed)
+  const lastReceivedDate = useSeedsStore((s) => s.lastReceivedDate)
+  const clearStaleTodaySeed = useSeedsStore((s) => s.clearStaleTodaySeed)
   const grantDailySeed = useSeedsStore((s) => s.grantDailySeed)
   const grantWelcomeSeed = useSeedsStore((s) => s.grantWelcomeSeed)
 
@@ -68,7 +69,8 @@ export function GardenPage() {
 
   const [energyOpen, setEnergyOpen] = useState(false)
   const [inventoryOpen, setInventoryOpen] = useState(false)
-  const [seedModalSeed, setSeedModalSeed] = useState(todaySeed)
+  const [seedModalSeed, setSeedModalSeed] = useState<InventorySeed | null>(null)
+  const [kstDate, setKstDate] = useState(() => getKSTDateString())
   const [selectedPlantId, setSelectedPlantId] = useState<string | null>(null)
   const [mixerOpen, setMixerOpen] = useState(false)
   const [showWakeModal, setShowWakeModal] = useState(false)
@@ -121,15 +123,34 @@ export function GardenPage() {
     return () => clearInterval(id)
   }, [])
 
+  // 자정을 넘겨도 오늘 씨앗을 다시 판단
+  useEffect(() => {
+    const refresh = () => {
+      setKstDate(getKSTDateString())
+      clearStaleTodaySeed()
+    }
+    refresh()
+    const id = setInterval(refresh, 60 * 1000)
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') refresh()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      clearInterval(id)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [clearStaleTodaySeed])
+
   // 당일 씨앗 (튜토리얼 완료 후)
   useEffect(() => {
-    if (!tutorialCompleted || hasReceivedToday || tutorialActive) return
+    if (!tutorialCompleted || tutorialActive || hasReceivedSeedToday(lastReceivedDate)) return
     const timer = setTimeout(() => {
+      if (hasReceivedSeedToday(useSeedsStore.getState().lastReceivedDate)) return
       const seed = grantDailySeed(getTodayEnergy())
-      setSeedModalSeed(seed)
+      if (seed) setSeedModalSeed(seed)
     }, 3000)
     return () => clearTimeout(timer)
-  }, [hasReceivedToday, grantDailySeed, tutorialCompleted, tutorialActive])
+  }, [lastReceivedDate, kstDate, grantDailySeed, tutorialCompleted, tutorialActive])
 
   const handleWakeClose = () => {
     applyGardenSleep(false)

@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware'
 import { getSeedById, pickDailySeed, SEED_IDS } from '../constants/seeds'
 import type { OhangType } from '../constants/strings'
 import type { SeedMaster } from '../constants/seeds'
+import { getKSTDateString } from '../lib/datetime'
 
 export interface InventorySeed {
   id: string
@@ -14,16 +15,20 @@ export interface InventorySeed {
   receivedAt: string
 }
 
-interface SeedsState {
+interface SeedsPersisted {
   inventory: InventorySeed[]
-  hasReceivedToday: boolean
+  lastReceivedDate: string | null
   todaySeed: InventorySeed | null
-  grantDailySeed: (energyCode: OhangType) => InventorySeed
+}
+
+interface SeedsState extends SeedsPersisted {
+  grantDailySeed: (energyCode: OhangType) => InventorySeed | null
   grantWelcomeSeed: () => InventorySeed
   removeFromInventory: (id: string) => void
   getSeed: (id: string) => InventorySeed | undefined
   setInventory: (seeds: InventorySeed[]) => void
   markReceivedToday: () => void
+  clearStaleTodaySeed: () => void
   reset: () => void
 }
 
@@ -42,18 +47,33 @@ function toInventorySeed(
   }
 }
 
+const emptySeeds: SeedsPersisted = {
+  inventory: [],
+  lastReceivedDate: null,
+  todaySeed: null,
+}
+
+export function hasReceivedSeedToday(
+  lastReceivedDate: string | null,
+  now = new Date(),
+): boolean {
+  return lastReceivedDate === getKSTDateString(now)
+}
+
 export const useSeedsStore = create<SeedsState>()(
   persist(
     (set, get) => ({
-      inventory: [],
-      hasReceivedToday: false,
-      todaySeed: null,
+      ...emptySeeds,
       grantDailySeed: (energyCode) => {
+        const today = getKSTDateString()
+        const current = get()
+        if (current.lastReceivedDate === today) return current.todaySeed
+
         const master = pickDailySeed(energyCode)
         const seed = toInventorySeed(master, 'daily')
         set((s) => ({
           todaySeed: seed,
-          hasReceivedToday: true,
+          lastReceivedDate: today,
           inventory: [...s.inventory, seed],
         }))
         return seed
@@ -70,9 +90,34 @@ export const useSeedsStore = create<SeedsState>()(
         })),
       getSeed: (id) => get().inventory.find((x) => x.id === id),
       setInventory: (inventory) => set({ inventory }),
-      markReceivedToday: () => set({ hasReceivedToday: true }),
-      reset: () => set({ inventory: [], hasReceivedToday: false, todaySeed: null }),
+      markReceivedToday: () => set({ lastReceivedDate: getKSTDateString() }),
+      clearStaleTodaySeed: () => {
+        const today = getKSTDateString()
+        const { lastReceivedDate, todaySeed } = get()
+        if (todaySeed && lastReceivedDate !== today) set({ todaySeed: null })
+      },
+      reset: () => set(emptySeeds),
     }),
-    { name: 'stargarden-seeds' },
+    {
+      name: 'stargarden-seeds',
+      version: 1,
+      migrate: (persisted, version) => {
+        const state = (persisted ?? {}) as Partial<SeedsPersisted> & {
+          hasReceivedToday?: boolean
+        }
+        if (version < 1 || state.lastReceivedDate === undefined) {
+          return {
+            inventory: state.inventory ?? [],
+            lastReceivedDate: null,
+            todaySeed: null,
+          }
+        }
+        return {
+          inventory: state.inventory ?? [],
+          lastReceivedDate: state.lastReceivedDate,
+          todaySeed: state.todaySeed ?? null,
+        }
+      },
+    },
   ),
 )
