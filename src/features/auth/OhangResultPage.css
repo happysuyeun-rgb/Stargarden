@@ -1,0 +1,65 @@
+.ohang-result {
+  min-height: 100vh;
+  padding: 48px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+
+.ohang-result__glow {
+  position: absolute;
+  top: 20%;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(196, 181, 253, 0.25), transparent 70%);
+  pointer-events: none;
+}
+
+.ohang-result__title {
+  margin: 24px 0;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.ohang-result__card {
+  width: 100%;
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+}
+
+.ohang-result__card p {
+  margin: 0 0 12px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.ohang-result__card p:last-child {
+  margin-bottom: 0;
+}
+
+.ohang-result__accuracy {
+  margin-top: 12px !important;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 13px !important;
+  color: var(--color-text-muted) !important;
+}
+
+.ohang-result__cta {
+  margin-top: auto;
+  width: 100%;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #0a0e1a;
+  font-weight: 600;
+  font-size: 16px;
+}

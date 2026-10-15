@@ -1,0 +1,55 @@
+.tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 180;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: calc(var(--tab-height) + 100px + env(safe-area-inset-bottom));
+}
+
+.tutorial-overlay__card {
+  pointer-events: auto;
+  width: calc(100% - 32px);
+  max-width: calc(var(--max-width) - 32px);
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  background: rgba(18, 24, 43, 0.95);
+  border: 1px solid rgba(196, 181, 253, 0.4);
+  animation: tutorial-in 0.4s ease-out;
+}
+
+.tutorial-overlay__step {
+  font-size: 12px;
+  color: var(--color-accent);
+}
+
+.tutorial-overlay__card h2 {
+  margin: 8px 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.tutorial-overlay__card p {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.tutorial-overlay__skip {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@keyframes tutorial-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-overlay__card { animation: none; }
+}

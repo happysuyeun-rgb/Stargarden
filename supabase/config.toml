@@ -1,0 +1,14 @@
+# Supabase local development (optional)
+# Run: supabase start (requires Supabase CLI)
+
+[api]
+enabled = true
+port = 54321
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323

@@ -1,0 +1,89 @@
+.seed-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.seed-modal {
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+}
+
+.seed-modal__fall {
+  font-size: 48px;
+  color: var(--color-accent);
+  animation: seed-fall 1.5s ease-out;
+  margin-bottom: 16px;
+}
+
+@keyframes seed-fall {
+  from {
+    transform: translateY(-80px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.seed-modal__card {
+  padding: 32px 24px;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  border: 1px solid rgba(196, 181, 253, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.seed-modal__card h2 {
+  margin: 8px 0 0;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.seed-modal__rarity {
+  font-size: 12px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.seed-modal__rarity--rare {
+  color: var(--color-accent);
+  border: 1px solid rgba(196, 181, 253, 0.4);
+}
+
+.seed-modal__preview {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.seed-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.seed-modal__btn {
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 15px;
+}
+
+.seed-modal__btn--primary {
+  background: var(--color-accent);
+  color: #0a0e1a;
+  font-weight: 600;
+}

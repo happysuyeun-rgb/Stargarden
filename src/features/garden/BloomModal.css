@@ -1,0 +1,58 @@
+.bloom-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 250;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.bloom-modal {
+  width: 100%;
+  max-width: 320px;
+  padding: 40px 24px;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  border: 1px solid rgba(196, 181, 253, 0.4);
+  text-align: center;
+}
+
+.bloom-modal__glow {
+  font-size: 64px;
+  animation: bloom-pulse 2s ease-in-out infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes bloom-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+.bloom-modal h2 {
+  margin: 0 0 12px;
+  font-size: 24px;
+}
+
+.bloom-modal__meaning {
+  margin: 0 0 16px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.bloom-modal__badge {
+  margin: 0 0 24px;
+  font-size: 13px;
+  color: var(--color-accent);
+}
+
+.bloom-modal__cta {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #0a0e1a;
+  font-weight: 600;
+}

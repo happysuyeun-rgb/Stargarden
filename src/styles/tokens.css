@@ -1,0 +1,30 @@
+:root {
+  --color-bg: #0a0e1a;
+  --color-bg-elevated: #12182b;
+  --color-text: #e8ecf4;
+  --color-text-muted: #8b95a8;
+  --color-accent: #c4b5fd;
+
+  --ohang-wood: #2dd4bf;
+  --ohang-fire: #fb7185;
+  --ohang-earth: #fbbf24;
+  --ohang-metal: #f5e6c8;
+  --ohang-water: #3b82f6;
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --tab-height: 64px;
+  --max-width: 480px;
+  --transition: 300ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,36 @@
+.dev-badge {
+  position: fixed;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(var(--max-width) - 16px);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  font-size: 11px;
+  z-index: 200;
+  pointer-events: auto;
+}
+
+.dev-badge__label {
+  font-weight: 700;
+  color: var(--ohang-earth);
+  padding: 0 4px;
+}
+
+.dev-badge__btn {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.dev-badge__btn:hover {
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.12);
+}

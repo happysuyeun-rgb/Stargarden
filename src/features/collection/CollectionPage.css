@@ -1,0 +1,85 @@
+.collection__header {
+  margin-bottom: 20px;
+}
+
+.collection__header h1 {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.collection__progress {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-accent);
+}
+
+.collection__tabs {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  margin-bottom: 20px;
+  padding: 4px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.collection__tab {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  opacity: 0.5;
+  transition: opacity var(--transition), background var(--transition);
+}
+
+.collection__tab--active {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.collection__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.collection__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  width: 100%;
+  text-align: center;
+  transition: border-color var(--transition);
+}
+
+.collection__card:hover {
+  border-color: rgba(196, 181, 253, 0.3);
+}
+
+.collection__card--locked {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.collection__card--locked:hover {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.collection__name {
+  font-size: 14px;
+}
+
+.collection__rare {
+  font-size: 11px;
+  color: var(--color-accent);
+}

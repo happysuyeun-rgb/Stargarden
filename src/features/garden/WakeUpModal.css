@@ -1,0 +1,46 @@
+.wake-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 260;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.wake-modal {
+  width: 100%;
+  max-width: 320px;
+  padding: 40px 24px;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  border: 1px solid rgba(196, 181, 253, 0.3);
+  text-align: center;
+}
+
+.wake-modal__glow {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.wake-modal h2 {
+  margin: 0 0 12px;
+  font-size: 22px;
+}
+
+.wake-modal p {
+  margin: 0 0 24px;
+  font-size: 15px;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.wake-modal__cta {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #0a0e1a;
+  font-weight: 600;
+}

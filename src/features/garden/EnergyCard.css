@@ -1,0 +1,54 @@
+.energy-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 88px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.energy-card__text {
+  flex: 1;
+  font-size: 15px;
+}
+
+.energy-card__arrow {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.energy-card__detail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.energy-card__summary {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.energy-card__personal {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-accent);
+}
+
+.energy-card__premium {
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.energy-card__lock {
+  margin-left: 4px;
+}

@@ -1,0 +1,202 @@
+.garden {
+  position: relative;
+  min-height: calc(100vh - var(--tab-height));
+}
+
+.garden__planting-hint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(196, 181, 253, 0.15);
+  border: 1px solid rgba(196, 181, 253, 0.3);
+  font-size: 14px;
+}
+
+.garden__planting-hint button {
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  font-size: 13px;
+}
+
+.garden__slot--highlight {
+  border-color: var(--color-accent) !important;
+  animation: pulse-slot 1.5s ease-in-out infinite;
+}
+
+.garden__slot--sleeping {
+  opacity: 0.5;
+  filter: saturate(0.3);
+}
+
+@keyframes pulse-slot {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(196, 181, 253, 0.3); }
+  50% { box-shadow: 0 0 12px 4px rgba(196, 181, 253, 0.2); }
+}
+
+.garden__plant {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 20px;
+}
+
+.garden__plant-name {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.garden__inventory-btn {
+  position: absolute;
+  top: 112px;
+  left: 16px;
+  font-size: 22px;
+  padding: 8px;
+}
+
+.garden__inventory-btn span {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 11px;
+  background: var(--color-accent);
+  color: #0a0e1a;
+  border-radius: 999px;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.garden__energy-card {
+  height: 88px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 16px;
+}
+
+.garden__energy-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.garden__energy-card p {
+  margin: 4px 0 0;
+  font-size: 15px;
+}
+
+.garden--morning .garden__canvas {
+  background: radial-gradient(ellipse at 50% 0%, rgba(251, 191, 36, 0.12), transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(59, 130, 246, 0.06), transparent 60%);
+}
+
+.garden--day .garden__canvas {
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.06), transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(59, 130, 246, 0.08), transparent 60%);
+}
+
+.garden--evening .garden__canvas {
+  background: radial-gradient(ellipse at 50% 0%, rgba(251, 113, 133, 0.1), transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(59, 130, 246, 0.08), transparent 60%);
+}
+
+.garden--night .garden__canvas {
+  background: radial-gradient(ellipse at 50% 100%, rgba(59, 130, 246, 0.1), transparent 60%);
+}
+
+.garden__slot--tutorial {
+  animation: pulse-slot 1.5s ease-in-out infinite;
+}
+
+.garden__canvas {
+  position: relative;
+  min-height: 360px;
+  border-radius: var(--radius-lg);
+  background: radial-gradient(ellipse at 50% 100%, rgba(59, 130, 246, 0.08), transparent 60%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.garden__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding: 24px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.garden__slot {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color var(--transition);
+}
+
+.garden__slot:hover {
+  border-color: rgba(196, 181, 253, 0.4);
+}
+
+.garden__slot--planted {
+  border-style: solid;
+  border-color: rgba(196, 181, 253, 0.3);
+  background: rgba(196, 181, 253, 0.08);
+}
+
+.garden__slot-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.garden__empty {
+  position: absolute;
+  bottom: 24px;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.garden__moon {
+  position: absolute;
+  top: 112px;
+  right: 16px;
+  font-size: 24px;
+  opacity: 0.4;
+}
+
+.garden__sound-fab--on {
+  background: rgba(196, 181, 253, 0.35);
+  box-shadow: 0 0 16px rgba(196, 181, 253, 0.3);
+}
+
+.garden__sound-fab {
+  position: fixed;
+  right: calc(50% - var(--max-width) / 2 + 16px);
+  bottom: calc(var(--tab-height) + 24px + env(safe-area-inset-bottom));
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(196, 181, 253, 0.2);
+  border: 1px solid rgba(196, 181, 253, 0.4);
+  font-size: 22px;
+  z-index: 50;
+}
+
+@media (max-width: 480px) {
+  .garden__sound-fab {
+    right: 16px;
+  }
+}

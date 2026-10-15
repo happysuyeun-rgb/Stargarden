@@ -1,0 +1,59 @@
+.plant-illust {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.plant-illust--sm {
+  width: 72px;
+  height: 72px;
+}
+
+.plant-illust--lg {
+  width: 160px;
+  height: 160px;
+}
+
+.plant-illust__glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  opacity: 0.35;
+}
+
+.plant-illust--wood .plant-illust__glow { background: radial-gradient(circle, var(--ohang-wood), transparent 70%); }
+.plant-illust--fire .plant-illust__glow { background: radial-gradient(circle, var(--ohang-fire), transparent 70%); }
+.plant-illust--earth .plant-illust__glow { background: radial-gradient(circle, var(--ohang-earth), transparent 70%); }
+.plant-illust--metal .plant-illust__glow { background: radial-gradient(circle, var(--ohang-metal), transparent 70%); }
+.plant-illust--water .plant-illust__glow { background: radial-gradient(circle, var(--ohang-water), transparent 70%); }
+
+.plant-illust__emoji {
+  position: relative;
+  font-size: 28px;
+  z-index: 1;
+}
+
+.plant-illust--lg .plant-illust__emoji {
+  font-size: 56px;
+}
+
+.plant-illust--silhouette {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+}
+
+.plant-illust--silhouette .plant-illust__glow {
+  opacity: 0.1;
+}
+
+.plant-illust--silhouette .plant-illust__emoji {
+  color: var(--color-text-muted);
+  font-size: 22px;
+}
+
+.plant-illust--silhouette.plant-illust--lg .plant-illust__emoji {
+  font-size: 40px;
+}
