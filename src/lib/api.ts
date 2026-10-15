@@ -13,11 +13,14 @@ export type EdgeFunctionName =
   | 'tap-starlight'
   | 'complete-onboarding'
   | 'touch-active'
-  | 'wake-garden'
+  | 'move-to-greenhouse'
+  | 'move-to-garden'
   | 'update-profile'
 
 export interface TouchActiveResult {
-  needsWakeModal: boolean
+  needs_return_greeting: boolean
+  days_away: number
+  today: string
 }
 
 export interface CompleteOnboardingResult {

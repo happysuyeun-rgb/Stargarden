@@ -52,7 +52,7 @@ src/
 ├── constants/  seeds, game, strings
 supabase/
 ├── migrations/ 001~008
-└── functions/  Edge Function 스텁 14종 (전부 501 스텁)
+└── functions/  Edge Function 스텁 15종 (전부 501 스텁)
 ```
 
 ## Supabase (Phase 2)
