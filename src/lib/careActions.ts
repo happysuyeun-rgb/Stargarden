@@ -3,7 +3,6 @@ import { getKSTDateString } from './datetime'
 import type { GardenPlant } from '../stores/gardenStore'
 
 export function canWaterToday(plant: GardenPlant, now = new Date()): boolean {
-  if (plant.isSleeping) return false
   if (!plant.lastWateredAt) return true
   return getKSTDateString(new Date(plant.lastWateredAt)) !== getKSTDateString(now)
 }
@@ -25,7 +24,6 @@ export function getStarlightBonusToday(plant: GardenPlant, now = new Date()): nu
 }
 
 export function canTapStarlight(plant: GardenPlant, now = new Date()): boolean {
-  if (plant.isSleeping) return false
   return getStarlightBonusToday(plant, now) < CARE_BONUS.starlightDailyCap
 }
 

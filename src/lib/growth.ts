@@ -5,8 +5,6 @@ export interface GrowthInput {
   requiredHours: number
   careBonusHours: number
   now?: Date
-  isSleeping?: boolean
-  sleptAt?: string | null
 }
 
 export function calcGrowthProgress({
@@ -14,12 +12,8 @@ export function calcGrowthProgress({
   requiredHours,
   careBonusHours,
   now = new Date(),
-  isSleeping = false,
-  sleptAt = null,
 }: GrowthInput): number {
-  const effectiveNow =
-    isSleeping && sleptAt ? new Date(Math.min(now.getTime(), new Date(sleptAt).getTime())) : now
-  const elapsedMs = effectiveNow.getTime() - plantedAt.getTime()
+  const elapsedMs = now.getTime() - plantedAt.getTime()
   const elapsedHours = elapsedMs / (1000 * 60 * 60)
   return (elapsedHours + careBonusHours) / requiredHours
 }

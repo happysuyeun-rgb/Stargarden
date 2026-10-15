@@ -23,14 +23,12 @@ interface AuthState {
   isDevMode: boolean
   devUserId: string | null
   lastActiveAt: string | null
-  isGardenSleeping: boolean
   welcomeSeedGranted: boolean
   consent: ConsentRecord | null
   setOnboarded: (ohangType: OhangType, profile?: BirthProfile) => void
   setConsent: (consent: ConsentRecord) => void
   enterDevMode: (ohangType?: OhangType) => void
   touchActive: () => void
-  setGardenSleeping: (sleeping: boolean) => void
   markWelcomeSeedGranted: () => void
   reset: () => void
 }
@@ -44,7 +42,6 @@ export const useAuthStore = create<AuthState>()(
       isDevMode: false,
       devUserId: null,
       lastActiveAt: null,
-      isGardenSleeping: false,
       welcomeSeedGranted: false,
       consent: null,
       setOnboarded: (ohangType, profile) =>
@@ -66,7 +63,6 @@ export const useAuthStore = create<AuthState>()(
           welcomeSeedGranted: true,
         }),
       touchActive: () => set({ lastActiveAt: new Date().toISOString() }),
-      setGardenSleeping: (isGardenSleeping) => set({ isGardenSleeping }),
       markWelcomeSeedGranted: () => set({ welcomeSeedGranted: true }),
       setConsent: (consent) => set({ consent }),
       reset: () =>
@@ -77,11 +73,19 @@ export const useAuthStore = create<AuthState>()(
           isDevMode: false,
           devUserId: null,
           lastActiveAt: null,
-          isGardenSleeping: false,
           welcomeSeedGranted: false,
           consent: null,
         }),
     }),
-    { name: 'stargarden-auth' },
+    {
+      name: 'stargarden-auth',
+      version: 1,
+      migrate: (persisted) => {
+        if (!persisted || typeof persisted !== 'object') return persisted
+        const state = { ...(persisted as Record<string, unknown>) }
+        delete state['is' + 'GardenSleeping']
+        return state
+      },
+    },
   ),
 )

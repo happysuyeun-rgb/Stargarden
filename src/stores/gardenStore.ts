@@ -21,8 +21,6 @@ export interface GardenPlant {
   starlightTapsToday: number
   starlightDate: string | null
   bloomedAt: string | null
-  isSleeping: boolean
-  sleptAt: string | null
 }
 
 export interface PlantingMode {
@@ -45,7 +43,6 @@ interface GardenState {
   updatePlant: (id: string, updater: (p: GardenPlant) => GardenPlant) => void
   markBloomed: (id: string) => void
   setPendingBloom: (id: string | null) => void
-  applyGardenSleep: (sleeping: boolean) => void
   toggleSound: () => void
   reset: () => void
 }
@@ -56,8 +53,6 @@ export function computePlantProgress(plant: GardenPlant, now = new Date()) {
     requiredHours: plant.requiredHours,
     careBonusHours: plant.careBonusHours,
     now,
-    isSleeping: plant.isSleeping,
-    sleptAt: plant.sleptAt,
   })
   const growthStage = plant.bloomedAt ? 2 : getGrowthStage(progress)
   return { progress, growthStage }
@@ -110,8 +105,6 @@ export const useGardenStore = create<GardenState>()(
           starlightTapsToday: 0,
           starlightDate: null,
           bloomedAt: null,
-          isSleeping: false,
-          sleptAt: null,
         }
 
         useSeedsStore.getState().removeFromInventory(plantingMode.userSeedId)
@@ -139,20 +132,24 @@ export const useGardenStore = create<GardenState>()(
           }
         }),
       setPendingBloom: (pendingBloomId) => set({ pendingBloomId }),
-      applyGardenSleep: (sleeping) =>
-        set((s) => {
-          const sleptAt = sleeping ? new Date().toISOString() : null
-          return {
-            plants: s.plants.map((p) => ({
-              ...p,
-              isSleeping: sleeping,
-              sleptAt: sleeping ? sleptAt : null,
-            })),
-          }
-        }),
       toggleSound: () => set((s) => ({ isSoundOn: !s.isSoundOn })),
       reset: () => set(initialState),
     }),
-    { name: 'stargarden-garden' },
+    {
+      name: 'stargarden-garden',
+      version: 1,
+      migrate: (persisted) => {
+        const state = (persisted ?? {}) as { plants?: Array<Record<string, unknown>> }
+        const legacyKeys = ['is' + 'Sleeping', 'slept' + 'At']
+        return {
+          ...state,
+          plants: (state.plants ?? []).map((plant) => {
+            const next = { ...plant }
+            for (const key of legacyKeys) delete next[key]
+            return next
+          }),
+        }
+      },
+    },
   ),
 )

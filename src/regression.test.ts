@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { CARE_BONUS, MIN_SIGNUP_AGE } from './constants/game'
+import { CARE_BONUS, GROWTH_HOURS, MIN_SIGNUP_AGE } from './constants/game'
 import { applyStarlightTap, applyWatering, canTapStarlight, canWaterToday } from './lib/careActions'
 import { getInternationalAge, getKSTDateString } from './lib/datetime'
-import { resolveWakeOnMount } from './lib/sleep'
+import { calcGrowthProgress } from './lib/growth'
+import { shouldShowReturnGreeting } from './lib/sleep'
 import { hasReceivedSeedToday, useSeedsStore } from './stores/seedsStore'
 import type { GardenPlant } from './stores/gardenStore'
 
@@ -29,8 +30,6 @@ function plant(overrides: Partial<GardenPlant> = {}): GardenPlant {
     starlightTapsToday: 0,
     starlightDate: null,
     bloomedAt: null,
-    isSleeping: false,
-    sleptAt: null,
     ...overrides,
   }
 }
@@ -60,11 +59,31 @@ describe('일일 씨앗', () => {
   })
 })
 
-describe('잠듦', () => {
-  it('잠듦 상태에서 마운트 로직을 다시 실행해도 깨어남 모달을 띄운다', () => {
-    expect(resolveWakeOnMount(false, true).showWakeModal).toBe(true)
-    expect(resolveWakeOnMount(true, true).showWakeModal).toBe(true)
-    expect(resolveWakeOnMount(false, false).showWakeModal).toBe(false)
+describe('복귀 연출', () => {
+  it('8일 만에 접속하면 복귀 연출을 보여주고 물주기는 가능하다', () => {
+    const now = new Date('2026-10-15T03:00:00.000Z')
+    const last = new Date('2026-10-07T03:00:00.000Z')
+    expect(shouldShowReturnGreeting(last.toISOString(), now)).toBe(true)
+    expect(canWaterToday(plant(), now)).toBe(true)
+  })
+
+  it('6일 만에 접속하면 복귀 연출이 없다', () => {
+    const now = new Date('2026-10-15T03:00:00.000Z')
+    const last = new Date('2026-10-09T03:00:00.000Z')
+    expect(shouldShowReturnGreeting(last.toISOString(), now)).toBe(false)
+  })
+
+  it('비운 동안의 시간이 성장에 모두 반영된다', () => {
+    const now = new Date('2026-10-15T03:00:00.000Z')
+    const plantedAt = new Date('2026-10-05T03:00:00.000Z')
+    const progress = calcGrowthProgress({
+      plantedAt,
+      requiredHours: GROWTH_HOURS.normal,
+      careBonusHours: 0,
+      now,
+    })
+    const elapsedHours = (now.getTime() - plantedAt.getTime()) / (1000 * 60 * 60)
+    expect(progress).toBeCloseTo(elapsedHours / GROWTH_HOURS.normal)
   })
 })
 

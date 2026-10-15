@@ -55,10 +55,6 @@ export function PlantCarePopover({ plant, onClose, onWater, onStarlight }: Plant
           {plant.bloomedAt ? '개화 완료' : `약 ${formatRemainingTime(remaining)} 후 개화`}
         </p>
 
-        {!plant.bloomedAt && plant.isSleeping && (
-          <p className="care-popover__sleeping">잠든 동안은 성장과 돌보기가 멈춰요</p>
-        )}
-
         {!plant.bloomedAt && (
           <div className="care-popover__actions">
             <button

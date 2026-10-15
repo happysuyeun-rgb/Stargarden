@@ -1,4 +1,4 @@
-.wake-overlay {
+.return-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.75);
@@ -9,7 +9,7 @@
   padding: 24px;
 }
 
-.wake-modal {
+.return-modal {
   width: 100%;
   max-width: 320px;
   padding: 40px 24px;
@@ -19,24 +19,24 @@
   text-align: center;
 }
 
-.wake-modal__glow {
+.return-modal__glow {
   font-size: 48px;
   margin-bottom: 16px;
 }
 
-.wake-modal h2 {
+.return-modal h2 {
   margin: 0 0 12px;
   font-size: 22px;
 }
 
-.wake-modal p {
+.return-modal p {
   margin: 0 0 24px;
   font-size: 15px;
   color: var(--color-text-muted);
   line-height: 1.6;
 }
 
-.wake-modal__cta {
+.return-modal__cta {
   width: 100%;
   padding: 14px;
   border-radius: var(--radius-md);

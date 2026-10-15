@@ -30,8 +30,6 @@ export function seedDevSession(ohangType: OhangType = 'water') {
       starlightTapsToday: 0,
       starlightDate: null,
       bloomedAt: hoursAgo(4),
-      isSleeping: false,
-      sleptAt: null,
     },
     {
       id: 'dev-plant-2',
@@ -48,8 +46,6 @@ export function seedDevSession(ohangType: OhangType = 'water') {
       starlightTapsToday: 20,
       starlightDate: new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' }),
       bloomedAt: null,
-      isSleeping: false,
-      sleptAt: null,
     },
     {
       id: 'dev-plant-3',
@@ -66,8 +62,6 @@ export function seedDevSession(ohangType: OhangType = 'water') {
       starlightTapsToday: 0,
       starlightDate: null,
       bloomedAt: null,
-      isSleeping: false,
-      sleptAt: null,
     },
   ])
 

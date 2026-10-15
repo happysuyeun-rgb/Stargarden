@@ -5,7 +5,7 @@ import { getTodayEnergy } from '../../constants/seeds'
 import { GARDEN_START_SLOTS } from '../../constants/game'
 import { TOAST } from '../../constants/strings'
 import { useGardenSound } from '../../hooks/useGardenSound'
-import { resolveWakeOnMount, shouldGardenSleep } from '../../lib/sleep'
+import { shouldShowReturnGreeting } from '../../lib/sleep'
 import { getTimeOfDay } from '../../lib/timeOfDay'
 import { useAuthStore } from '../../stores/authStore'
 import {
@@ -25,7 +25,7 @@ import { SeedInventory } from './SeedInventory'
 import { SeedReceiveModal } from './SeedReceiveModal'
 import { TutorialOverlay } from './TutorialOverlay'
 import { useGardenTick } from './useGardenTick'
-import { WakeUpModal } from './WakeUpModal'
+import { ReturnGreetingModal } from './ReturnGreetingModal'
 import './GardenPage.css'
 
 const SoundMixer = lazy(() =>
@@ -38,10 +38,8 @@ export function GardenPage() {
   const ohangType = useAuthStore((s) => s.ohangType)
   const isDevMode = useAuthStore((s) => s.isDevMode)
   const lastActiveAt = useAuthStore((s) => s.lastActiveAt)
-  const isGardenSleeping = useAuthStore((s) => s.isGardenSleeping)
   const welcomeSeedGranted = useAuthStore((s) => s.welcomeSeedGranted)
   const touchActive = useAuthStore((s) => s.touchActive)
-  const setGardenSleeping = useAuthStore((s) => s.setGardenSleeping)
   const markWelcomeSeedGranted = useAuthStore((s) => s.markWelcomeSeedGranted)
   const showToast = useToastStore((s) => s.show)
 
@@ -54,7 +52,6 @@ export function GardenPage() {
   const plantAtSlot = useGardenStore((s) => s.plantAtSlot)
   const updatePlant = useGardenStore((s) => s.updatePlant)
   const markBloomed = useGardenStore((s) => s.markBloomed)
-  const applyGardenSleep = useGardenStore((s) => s.applyGardenSleep)
   const registerBloom = useCollectionStore((s) => s.registerBloom)
 
   const inventory = useSeedsStore((s) => s.inventory)
@@ -76,7 +73,7 @@ export function GardenPage() {
   const [kstDate, setKstDate] = useState(() => getKSTDateString())
   const [selectedPlantId, setSelectedPlantId] = useState<string | null>(null)
   const [mixerOpen, setMixerOpen] = useState(false)
-  const [showWakeModal, setShowWakeModal] = useState(false)
+  const [showReturnGreeting, setShowReturnGreeting] = useState(false)
   const [timeOfDay, setTimeOfDay] = useState(getTimeOfDay)
   const [, setTick] = useState(0)
 
@@ -91,14 +88,7 @@ export function GardenPage() {
 
   // 접속·잠듦/깨어남·웰컴 씨앗·튜토리얼
   useEffect(() => {
-    const wasLongAbsent = shouldGardenSleep(lastActiveAt)
-    const wake = resolveWakeOnMount(wasLongAbsent, isGardenSleeping)
-
-    if (wake.applySleep) {
-      applyGardenSleep(true)
-      setGardenSleeping(true)
-    }
-    if (wake.showWakeModal) setShowWakeModal(true)
+    if (shouldShowReturnGreeting(lastActiveAt)) setShowReturnGreeting(true)
 
     touchActive()
 
@@ -154,11 +144,8 @@ export function GardenPage() {
     return () => clearTimeout(timer)
   }, [lastReceivedDate, kstDate, grantDailySeed, tutorialCompleted, tutorialActive])
 
-  const handleWakeClose = () => {
-    applyGardenSleep(false)
-    setGardenSleeping(false)
-    setShowWakeModal(false)
-    showToast('정원이 깨어났어요')
+  const handleReturnClose = () => {
+    setShowReturnGreeting(false)
   }
 
   const handleTutorialSkip = () => {
@@ -279,7 +266,6 @@ export function GardenPage() {
                 'garden__slot',
                 plant && 'garden__slot--planted',
                 plantingMode.active && !plant && 'garden__slot--highlight',
-                plant?.isSleeping && 'garden__slot--sleeping',
                 tutorialActive && tutorialStep === 2 && !plant && 'garden__slot--tutorial',
               ]
                 .filter(Boolean)
@@ -289,7 +275,7 @@ export function GardenPage() {
             >
               {plant && progress ? (
                 <span className="garden__plant" data-stage={progress.growthStage}>
-                  {plant.isSleeping ? '💤' : STAGE_EMOJI[progress.growthStage]}
+                  {STAGE_EMOJI[progress.growthStage]}
                   <span className="garden__plant-name">{plant.speciesName.slice(0, 2)}</span>
                 </span>
               ) : (
@@ -350,7 +336,7 @@ export function GardenPage() {
         />
       )}
 
-      {bloomPlant && !bloomPlant.bloomedAt && (
+      {!showReturnGreeting && bloomPlant && !bloomPlant.bloomedAt && (
         <BloomModal
           plant={bloomPlant}
           onClose={handleBloomClose}
@@ -364,7 +350,7 @@ export function GardenPage() {
         </Suspense>
       )}
       <TutorialOverlay onSkip={handleTutorialSkip} />
-      {showWakeModal && <WakeUpModal onClose={handleWakeClose} />}
+      {showReturnGreeting && <ReturnGreetingModal onClose={handleReturnClose} />}
     </div>
   )
 }
