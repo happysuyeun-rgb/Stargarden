@@ -1,5 +1,5 @@
 import { BottomSheet } from '../../components/BottomSheet'
-import { FREE_PRESET_LIMIT } from '../../constants/game'
+import { FREE_PRESET_LIMIT, SOUND_MAX_CHANNELS } from '../../constants/game'
 import { SLEEP_TIMER_OPTIONS } from '../../constants/sounds'
 import { useSoundStore } from '../../stores/soundStore'
 import { useToastStore } from '../../stores/toastStore'
@@ -60,6 +60,10 @@ export function SoundMixer({ open, onClose }: SoundMixerProps) {
             />
           </label>
         </div>
+
+        {channels.length > SOUND_MAX_CHANNELS && (
+          <p className="mixer__cap">한 번에 {SOUND_MAX_CHANNELS}개의 소리까지 흐를 수 있어요</p>
+        )}
 
         <ul className="mixer__channels">
           {channels.length === 0 ? (

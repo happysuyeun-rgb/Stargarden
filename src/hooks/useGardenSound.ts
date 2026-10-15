@@ -1,12 +1,15 @@
 import { useEffect, useRef } from 'react'
 import { SOUND_MAX_CHANNELS } from '../constants/game'
-import { SOUNDS } from '../constants/sounds'
+import { SOUNDS, type SoundKey } from '../constants/sounds'
+import { getSeedById } from '../constants/seeds'
 import { plantToSoundKey } from '../lib/plantSound'
 import type { GardenPlant } from '../stores/gardenStore'
+import { useCollectionStore } from '../stores/collectionStore'
 import { useSoundStore } from '../stores/soundStore'
 
-/** 개화 식물 → 사운드 채널 동기화 + 엔진 재생 */
-export function useGardenSound(plants: GardenPlant[]) {
+/** 도감에 모은 종의 소리로 채널을 만들고 재생한다. 같은 소리는 채널 하나. */
+export function useGardenSound() {
+  const entries = useCollectionStore((s) => s.entries)
   const isPlaying = useSoundStore((s) => s.isPlaying)
   const masterVolume = useSoundStore((s) => s.masterVolume)
   const channels = useSoundStore((s) => s.channels)
@@ -17,29 +20,18 @@ export function useGardenSound(plants: GardenPlant[]) {
   const bloomPlayedRef = useRef<Set<string>>(new Set())
   const engineLoadedRef = useRef(false)
 
-  // 개화 식물 → 채널 목록 갱신
+  // 도감 종 → 소리 채널. 위치(정원/온실)와 무관하다.
   useEffect(() => {
-    const bloomed = plants
-      .filter((p) => p.bloomedAt)
-      .sort((a, b) => new Date(b.bloomedAt!).getTime() - new Date(a.bloomedAt!).getTime())
-      .slice(0, SOUND_MAX_CHANNELS)
+    const unlocked = new Map<SoundKey, { name: string }>()
+    for (const entry of entries) {
+      const seed = getSeedById(entry.seedId)
+      if (!seed) continue
+      const soundKey = plantToSoundKey(seed.energyCode)
+      if (!unlocked.has(soundKey)) unlocked.set(soundKey, { name: SOUNDS[soundKey].name })
+    }
 
-    const nextChannels = bloomed.map((p) => {
-      const soundKey = plantToSoundKey(p.ohangType)
-      const existing = channels.find((c) => c.plantId === p.id)
-      return {
-        id: existing?.id ?? `ch-${p.id}`,
-        plantId: p.id,
-        soundKey,
-        name: p.speciesName,
-        volume: existing?.volume ?? 0.6,
-        muted: existing?.muted ?? false,
-      }
-    })
-
-    // 개화 식물 없으면 기본 배경음
-    if (nextChannels.length === 0) {
-      const ambient = channels.find((c) => c.plantId === null)
+    if (unlocked.size === 0) {
+      const ambient = channels.find((c) => c.soundKey === 'night-wind')
       setChannels([
         {
           id: ambient?.id ?? 'ch-ambient',
@@ -50,10 +42,23 @@ export function useGardenSound(plants: GardenPlant[]) {
           muted: ambient?.muted ?? false,
         },
       ])
-    } else {
-      setChannels(nextChannels)
+      return
     }
-  }, [plants]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    setChannels(
+      [...unlocked.entries()].map(([soundKey, info]) => {
+        const existing = channels.find((c) => c.soundKey === soundKey)
+        return {
+          id: existing?.id ?? `ch-${soundKey}`,
+          plantId: null,
+          soundKey,
+          name: info.name,
+          volume: existing?.volume ?? 0.6,
+          muted: existing?.muted ?? false,
+        }
+      }),
+    )
+  }, [entries]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 엔진 동기화. 재생 전에는 Tone.js를 불러오지 않는다.
   useEffect(() => {
@@ -70,8 +75,9 @@ export function useGardenSound(plants: GardenPlant[]) {
       void soundEngine.ensureStarted().then(() => {
         if (cancelled) return
         soundEngine.setMasterVolume(masterVolume)
+        const audible = channels.filter((c) => !c.muted).slice(0, SOUND_MAX_CHANNELS)
         soundEngine.syncChannels(
-          channels.map((c) => ({
+          audible.map((c) => ({
             id: c.id,
             soundKey: c.soundKey,
             volume: c.volume,

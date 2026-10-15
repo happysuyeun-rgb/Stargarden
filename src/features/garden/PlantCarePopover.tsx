@@ -1,6 +1,7 @@
 import { OhangBadge } from '../../components/OhangBadge'
 import type { OhangType } from '../../constants/strings'
 import { canWaterToday, canTapStarlight } from '../../lib/careActions'
+import { plantToSoundKey } from '../../lib/plantSound'
 import { formatRemainingTime } from '../../lib/datetime'
 import { getRemainingHours } from '../../lib/growth'
 import { computePlantProgress, type GardenPlant } from '../../stores/gardenStore'
@@ -32,7 +33,8 @@ export function PlantCarePopover({
   )
   const watered = !canWaterToday(plant)
   const starlightCapped = !canTapStarlight(plant)
-  const channel = useSoundStore((s) => s.channels.find((c) => c.plantId === plant.id))
+  const soundKey = plantToSoundKey(plant.ohangType)
+  const channel = useSoundStore((s) => s.channels.find((c) => c.soundKey === soundKey))
   const updateChannel = useSoundStore((s) => s.updateChannel)
   const setPlaying = useSoundStore((s) => s.setPlaying)
 

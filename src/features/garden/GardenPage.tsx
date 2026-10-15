@@ -85,7 +85,7 @@ export function GardenPage() {
   const [, setTick] = useState(0)
 
   const isPlaying = useSoundStore((s) => s.isPlaying)
-  const { playBloomSound, startGardenSound } = useGardenSound(plants)
+  const { playBloomSound, startGardenSound } = useGardenSound()
 
   const slotCount = slots || GARDEN_START_SLOTS
   const gardenPlants = plants.filter((p) => p.location === 'garden')
