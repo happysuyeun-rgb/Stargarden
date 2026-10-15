@@ -5,7 +5,7 @@ import { getTodayEnergy } from '../../constants/seeds'
 import { GARDEN_START_SLOTS } from '../../constants/game'
 import { TOAST } from '../../constants/strings'
 import { useGardenSound } from '../../hooks/useGardenSound'
-import { shouldGardenSleep } from '../../lib/sleep'
+import { resolveWakeOnMount, shouldGardenSleep } from '../../lib/sleep'
 import { getTimeOfDay } from '../../lib/timeOfDay'
 import { useAuthStore } from '../../stores/authStore'
 import {
@@ -89,14 +89,13 @@ export function GardenPage() {
   // 접속·잠듦/깨어남·웰컴 씨앗·튜토리얼
   useEffect(() => {
     const wasLongAbsent = shouldGardenSleep(lastActiveAt)
+    const wake = resolveWakeOnMount(wasLongAbsent, isGardenSleeping)
 
-    if (wasLongAbsent && !isGardenSleeping) {
+    if (wake.applySleep) {
       applyGardenSleep(true)
       setGardenSleeping(true)
-      setShowWakeModal(true)
-    } else if (isGardenSleeping && wasLongAbsent) {
-      setShowWakeModal(true)
     }
+    if (wake.showWakeModal) setShowWakeModal(true)
 
     touchActive()
 
