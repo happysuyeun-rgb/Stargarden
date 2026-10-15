@@ -51,7 +51,7 @@ export const useAuthStore = create<AuthState>()(
           isOnboarded: true,
           ohangType,
           isDevMode: true,
-          devUserId: '00000000-0000-0000-0000-dev00000001',
+          devUserId: '00000000-0000-0000-0000-00000000de01',
           lastActiveAt: new Date().toISOString(),
           welcomeSeedGranted: true,
         }),

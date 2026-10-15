@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { SOUND_MAX_CHANNELS } from '../constants/game'
 import { SOUNDS } from '../constants/sounds'
-import { plantToSoundKey, soundEngine } from '../lib/soundEngine'
+import { plantToSoundKey } from '../lib/plantSound'
 import type { GardenPlant } from '../stores/gardenStore'
 import { useSoundStore } from '../stores/soundStore'
 
@@ -15,6 +15,7 @@ export function useGardenSound(plants: GardenPlant[]) {
   const clearSleepTimer = useSoundStore((s) => s.clearSleepTimer)
   const setPlaying = useSoundStore((s) => s.setPlaying)
   const bloomPlayedRef = useRef<Set<string>>(new Set())
+  const engineLoadedRef = useRef(false)
 
   // 개화 식물 → 채널 목록 갱신
   useEffect(() => {
@@ -54,24 +55,35 @@ export function useGardenSound(plants: GardenPlant[]) {
     }
   }, [plants]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 엔진 동기화
+  // 엔진 동기화. 재생 전에는 Tone.js를 불러오지 않는다.
   useEffect(() => {
-    if (!isPlaying) {
-      soundEngine.syncChannels([])
-      return
-    }
+    if (!isPlaying && !engineLoadedRef.current) return
+    let cancelled = false
 
-    soundEngine.ensureStarted().then(() => {
-      soundEngine.setMasterVolume(masterVolume)
-      soundEngine.syncChannels(
-        channels.map((c) => ({
-          id: c.id,
-          soundKey: c.soundKey,
-          volume: c.volume,
-          muted: c.muted,
-        })),
-      )
+    void import('../lib/soundEngine').then(({ soundEngine }) => {
+      if (cancelled) return
+      engineLoadedRef.current = true
+      if (!isPlaying) {
+        soundEngine.syncChannels([])
+        return
+      }
+      void soundEngine.ensureStarted().then(() => {
+        if (cancelled) return
+        soundEngine.setMasterVolume(masterVolume)
+        soundEngine.syncChannels(
+          channels.map((c) => ({
+            id: c.id,
+            soundKey: c.soundKey,
+            volume: c.volume,
+            muted: c.muted,
+          })),
+        )
+      })
     })
+
+    return () => {
+      cancelled = true
+    }
   }, [isPlaying, masterVolume, channels])
 
   // 수면 타이머
@@ -80,18 +92,20 @@ export function useGardenSound(plants: GardenPlant[]) {
 
     const check = () => {
       const remaining = sleepTimerEndsAt - Date.now()
-      if (remaining <= 0) {
-        soundEngine.fadeOutAndStop(3)
-        setTimeout(() => {
-          setPlaying(false)
-          clearSleepTimer()
-        }, 3000)
-        return
-      }
-      // 마지막 30초부터 페이드아웃 시작
-      if (remaining <= 30_000 && remaining > 29_000) {
-        soundEngine.fadeOutAndStop(30)
-      }
+      void import('../lib/soundEngine').then(({ soundEngine }) => {
+        if (remaining <= 0) {
+          soundEngine.fadeOutAndStop(3)
+          setTimeout(() => {
+            setPlaying(false)
+            clearSleepTimer()
+          }, 3000)
+          return
+        }
+        // 마지막 30초부터 페이드아웃 시작
+        if (remaining <= 30_000 && remaining > 29_000) {
+          soundEngine.fadeOutAndStop(30)
+        }
+      })
     }
 
     const id = setInterval(check, 1000)
@@ -102,11 +116,14 @@ export function useGardenSound(plants: GardenPlant[]) {
     playBloomSound: async (plant: GardenPlant) => {
       if (bloomPlayedRef.current.has(plant.id)) return
       bloomPlayedRef.current.add(plant.id)
+      const { soundEngine } = await import('../lib/soundEngine')
+      engineLoadedRef.current = true
       await soundEngine.ensureStarted()
-      const soundKey = plantToSoundKey(plant.ohangType)
-      await soundEngine.playPreview(soundKey, 5)
+      await soundEngine.playPreview(plantToSoundKey(plant.ohangType), 5)
     },
     startGardenSound: async () => {
+      const { soundEngine } = await import('../lib/soundEngine')
+      engineLoadedRef.current = true
       await soundEngine.ensureStarted()
       soundEngine.cancelFade()
       setPlaying(true)

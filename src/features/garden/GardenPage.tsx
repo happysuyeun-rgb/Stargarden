@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { applyStarlightTap, applyWatering } from '../../lib/careActions'
 import { getKSTDateString } from '../../lib/datetime'
 import { getTodayEnergy } from '../../constants/seeds'
@@ -18,7 +18,6 @@ import { useCollectionStore } from '../../stores/collectionStore'
 import { useTutorialStore } from '../../stores/tutorialStore'
 import { useToastStore } from '../../stores/toastStore'
 import { useSoundStore } from '../../stores/soundStore'
-import { SoundMixer } from '../sound/SoundMixer'
 import { BloomModal } from './BloomModal'
 import { EnergyCard } from './EnergyCard'
 import { PlantCarePopover } from './PlantCarePopover'
@@ -28,6 +27,10 @@ import { TutorialOverlay } from './TutorialOverlay'
 import { useGardenTick } from './useGardenTick'
 import { WakeUpModal } from './WakeUpModal'
 import './GardenPage.css'
+
+const SoundMixer = lazy(() =>
+  import('../sound/SoundMixer').then((m) => ({ default: m.SoundMixer })),
+)
 
 const STAGE_EMOJI = ['🌰', '🌱', '🌸']
 
@@ -355,7 +358,11 @@ export function GardenPage() {
         />
       )}
 
-      <SoundMixer open={mixerOpen} onClose={() => setMixerOpen(false)} />
+      {mixerOpen && (
+        <Suspense fallback={null}>
+          <SoundMixer open={mixerOpen} onClose={() => setMixerOpen(false)} />
+        </Suspense>
+      )}
       <TutorialOverlay onSkip={handleTutorialSkip} />
       {showWakeModal && <WakeUpModal onClose={handleWakeClose} />}
     </div>

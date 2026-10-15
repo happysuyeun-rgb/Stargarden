@@ -7,7 +7,7 @@ import { useSeedsStore } from '../stores/seedsStore'
 import { useSoundStore } from '../stores/soundStore'
 import type { OhangType } from '../constants/strings'
 
-const DEV_USER_ID = '00000000-0000-0000-0000-dev00000001'
+const DEV_USER_ID = '00000000-0000-0000-0000-00000000de01'
 
 const hoursAgo = (h: number) => new Date(Date.now() - h * 60 * 60 * 1000).toISOString()
 

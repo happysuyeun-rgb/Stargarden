@@ -1,5 +1,5 @@
 import { OhangBadge } from '../../components/OhangBadge'
-import { soundEngine, plantToSoundKey } from '../../lib/soundEngine'
+import { plantToSoundKey } from '../../lib/plantSound'
 import type { InventorySeed } from '../../stores/seedsStore'
 import './SeedReceiveModal.css'
 
@@ -23,7 +23,11 @@ export function SeedReceiveModal({ seed, onPlant, onStore }: SeedReceiveModalPro
           <button
             type="button"
             className="seed-modal__preview"
-            onClick={() => soundEngine.playPreview(plantToSoundKey(seed.ohangType), 5)}
+            onClick={() => {
+              void import('../../lib/soundEngine').then(({ soundEngine }) => {
+                void soundEngine.playPreview(plantToSoundKey(seed.ohangType), 5)
+              })
+            }}
             aria-label="사운드 미리듣기"
           >
             🔊 5초 미리듣기

@@ -3,7 +3,7 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { OhangBadge } from '../../components/OhangBadge'
 import { getSeedById, SEEDS } from '../../constants/seeds'
 import { OHANG_NAMES } from '../../constants/strings'
-import { plantToSoundKey, soundEngine } from '../../lib/soundEngine'
+import { plantToSoundKey } from '../../lib/plantSound'
 import { useCollectionStore } from '../../stores/collectionStore'
 import { PlantIllustration } from './PlantIllustration'
 import './PlantDetailPage.css'
@@ -42,7 +42,9 @@ export function PlantDetailPage() {
     : null
 
   const handlePlaySound = () => {
-    soundEngine.playPreview(plantToSoundKey(seed.energyCode), 10)
+    void import('../../lib/soundEngine').then(({ soundEngine }) => {
+      void soundEngine.playPreview(plantToSoundKey(seed.energyCode), 10)
+    })
   }
 
   return (

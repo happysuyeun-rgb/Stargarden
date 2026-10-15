@@ -1,4 +1,6 @@
+import { RARE_PROBABILITY } from './game'
 import type { OhangType } from './strings'
+import { getKSTDateString } from '../lib/datetime'
 
 /** DB 003_seed_data.sql 과 동일 UUID (설계보완 v1.3.1 B안) */
 export const SEED_IDS = {
@@ -52,16 +54,21 @@ export function getSeedById(id: string): SeedMaster | undefined {
 
 export function pickDailySeed(energyCode: OhangType): SeedMaster {
   const pool = SEEDS.filter((s) => s.energyCode === energyCode)
-  const isRare = Math.random() < 0.15
+  const isRare = Math.random() < RARE_PROBABILITY
   const rarity = isRare ? 'rare' : 'normal'
   const candidates = pool.filter((s) => s.rarity === rarity)
   return candidates[Math.floor(Math.random() * candidates.length)] ?? pool[0]
 }
 
-export function getTodayEnergy(): OhangType {
-  const day = new Date().getDay()
-  const map: OhangType[] = ['water', 'wood', 'fire', 'earth', 'metal', 'water', 'wood']
-  return map[day]
+const OHANG_CYCLE: OhangType[] = ['wood', 'fire', 'earth', 'metal', 'water']
+
+export function getTodayEnergy(now = new Date()): OhangType {
+  // TODO: 만세력 일진 기반으로 교체
+  const [year, month, day] = getKSTDateString(now).split('-').map(Number)
+  const dayMs = 24 * 60 * 60 * 1000
+  const dayNumber = Math.floor(Date.UTC(year, month - 1, day) / dayMs)
+  const index = ((dayNumber % OHANG_CYCLE.length) + OHANG_CYCLE.length) % OHANG_CYCLE.length
+  return OHANG_CYCLE[index]
 }
 
 export const ENERGY_FALLBACK: Record<OhangType, string> = {
